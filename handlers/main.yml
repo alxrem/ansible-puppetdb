@@ -1,0 +1,3 @@
+---
+- name: Restart puppetdb
+  service: name=puppetdb state=restarted

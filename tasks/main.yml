@@ -1,0 +1,24 @@
+---
+- name: Detect firewall rule
+  shell: /sbin/iptables-save | /bin/grep -- '-A INPUT {{ drop_non_local_rule }}'
+  register: grep_rule
+  changed_when: grep_rule.rc == 1
+  failed_when: grep_rule.rc > 1
+  when: puppetdb_drop_nonlocal
+
+- name: Configure firewall
+  shell: /sbin/iptables -I INPUT {{ drop_non_local_rule }}
+  when: puppetdb_drop_nonlocal and grep_rule.changed
+
+- name: Install packages
+  apt: name={{ item }} update_cache=true install_recommends=no
+  with_items:
+  - puppetdb
+
+- name: Configure jetty
+  template: src=jetty.ini.j2 dest={{ conf_dir }}/jetty.ini
+  notify: Restart puppetdb
+
+- name: Configure database
+  template: src=database/{{ puppetdb_backend }}.ini.j2 dest={{ conf_dir }}/database.ini
+  notify: Restart puppetdb
