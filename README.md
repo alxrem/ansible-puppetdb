@@ -1,3 +1,5 @@
+[![Ansible Galaxy](https://img.shields.io/ansible/role/6377.svg)](https://galaxy.ansible.com/detail#/role/6377)
+
 puppetdb
 ========
 
